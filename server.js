@@ -11,11 +11,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the current directory (for upload.html, view.html, etc.)
+// Serve static files from the root directory (for upload.html, view.html, etc.)
 app.use(express.static(__dirname));
 
+// Multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Cloudinary config from environment variables
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,
@@ -23,7 +25,7 @@ cloudinary.config({
 });
 
 // ---------------------------
-//  GET ALL CATEGORIES
+// GET ALL CATEGORIES
 // ---------------------------
 app.get("/api/categories", async (req, res) => {
     try {
@@ -37,12 +39,11 @@ app.get("/api/categories", async (req, res) => {
 });
 
 // ---------------------------
-//  CREATE NEW CATEGORY
+// CREATE NEW CATEGORY
 // ---------------------------
 app.post("/api/create-category", async (req, res) => {
     const { category } = req.body;
-    if (!category)
-        return res.status(400).json({ error: "Category name required" });
+    if (!category) return res.status(400).json({ error: "Category name required" });
 
     try {
         await cloudinary.api.create_folder(`njora-photos/${category}`);
@@ -54,23 +55,22 @@ app.post("/api/create-category", async (req, res) => {
 });
 
 // ---------------------------
-//  FILE UPLOAD (Metadata Stored in Cloudinary Context)
+// FILE UPLOAD
 // ---------------------------
 app.post("/api/upload", upload.single("file"), async (req, res) => {
     const file = req.file;
     const category = req.body.category;
-    const name = req.body.name; 
+    const name = req.body.name;
     const description = req.body.description;
 
     if (!file) return res.status(400).json({ error: "File missing" });
     if (!category) return res.status(400).json({ error: "Category missing" });
-    if (!name) return res.status(400).json({ error: "Picture Name missing" }); 
+    if (!name) return res.status(400).json({ error: "Picture Name missing" });
 
     try {
         const uploaded = await cloudinary.uploader.upload_stream(
             { 
                 folder: `njora-photos/${category}`,
-                // Store name and description as contextual metadata
                 context: `name=${name}|description=${description}`
             },
             async (err, result) => {
@@ -78,13 +78,13 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
                     console.error("Upload error:", err);
                     return res.status(500).json({ error: "Upload failed" });
                 }
-                
-                // DB SAVE HOOK
-                console.log(`[DB HOOK] Should save metadata for Public ID: ${result.public_id}`);
 
-                return res.json({ 
-                    message: "Uploaded successfully", 
-                    url: result.secure_url, 
+                // DB hook (optional)
+                console.log(`[DB HOOK] Save metadata for Public ID: ${result.public_id}`);
+
+                return res.json({
+                    message: "Uploaded successfully",
+                    url: result.secure_url,
                     public_id: result.public_id
                 });
             }
@@ -97,38 +97,32 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 });
 
 // ---------------------------
-//  LIST IMAGES BY CATEGORY (WITH METADATA)
+// LIST IMAGES BY CATEGORY
 // ---------------------------
 app.get("/api/images", async (req, res) => {
-    const category = req.query.category || ""; 
+    const category = req.query.category || "";
     const folderPath = category ? `njora-photos/${category}` : "njora-photos";
 
     try {
         const result = await cloudinary.api.resources({
             type: "upload",
-            prefix: folderPath, 
+            prefix: folderPath,
             max_results: 500,
-            context: true 
+            context: true
         });
-        
-        // Transform the results to extract the context data
+
         const mergedResources = result.resources.map(asset => {
             const context = asset.context ? asset.context.custom : {};
-            
-            // ⭐ FIXED: Safely determine the category name to prevent split() error
-            let assetCategory = "Root"; 
-            if (asset.folder) {
-                assetCategory = asset.folder.split('/').pop();
-            } else if (category) {
-                assetCategory = category;
-            }
+            let assetCategory = "Root";
+            if (asset.folder) assetCategory = asset.folder.split('/').pop();
+            else if (category) assetCategory = category;
 
             return {
                 public_id: asset.public_id,
                 secure_url: asset.secure_url,
-                name: context.name || "Untitled Photo", 
+                name: context.name || "Untitled Photo",
                 description: context.description || "No description provided.",
-                category: assetCategory, 
+                category: assetCategory,
                 created_at: asset.created_at
             };
         });
@@ -136,13 +130,13 @@ app.get("/api/images", async (req, res) => {
         return res.json({ resources: mergedResources, next_cursor: result.next_cursor });
     } catch (err) {
         console.error("Fetch images error:", err);
-        console.error(`Failing folder path: ${folderPath}`); 
+        console.error(`Failing folder path: ${folderPath}`);
         return res.status(500).json({ error: "Failed to load images" });
     }
 });
 
 // ---------------------------
-//  DELETE IMAGE (DB Delete Hook Included)
+// DELETE IMAGE
 // ---------------------------
 app.post("/api/delete-image", async (req, res) => {
     const { public_id } = req.body;
@@ -151,10 +145,8 @@ app.post("/api/delete-image", async (req, res) => {
     try {
         const result = await cloudinary.uploader.destroy(public_id);
         if (result.result !== "ok") throw new Error("Failed to delete image on Cloudinary");
-        
-        // DB DELETE HOOK
-        console.log(`[DB HOOK] Should delete metadata for Public ID: ${public_id}`);
-        
+
+        console.log(`[DB HOOK] Delete metadata for Public ID: ${public_id}`);
         res.json({ message: "Deleted successfully" });
     } catch (err) {
         console.error("Delete image error:", err);
@@ -162,6 +154,8 @@ app.post("/api/delete-image", async (req, res) => {
     }
 });
 
+// ---------------------------
+// ROOT ROUTE
 // ---------------------------
 app.get("/", (req, res) => {
     res.send(`
@@ -172,5 +166,8 @@ app.get("/", (req, res) => {
     `);
 });
 
-const PORT = 5000;
+// ---------------------------
+// START SERVER
+// ---------------------------
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
