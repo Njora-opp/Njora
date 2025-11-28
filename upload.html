@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Njora — Upload & Gallery</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#12251b;
+      --panel:#0e0e10;
+      --muted:#bdb6af;
+      --gold:#B5A067;
+      --accent:linear-gradient(135deg,#f7e6b8 0%, #ffd664 50%, #b7832e 100%);
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body{height:100%;margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto;background:radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.02), transparent),var(--bg);color:#fff;}
+    a{color:inherit;text-decoration:none}
+    /* Layout */
+    .wrap{max-width:1200px;margin:20px auto;padding:18px;box-sizing:border-box;}
+    .two-col{display:grid;grid-template-columns:360px 1fr;gap:24px}
+    @media (max-width:980px){ .two-col{grid-template-columns:1fr} }
+
+    /* UPLOAD PANEL */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .panel h2{font-family:'Playfair Display';color:var(--gold);margin:0 0 10px 0}
+    .input, input[type="text"], select, button {width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#111;color:#fff;box-sizing:border-box;margin-top:8px}
+    .button-group{display:flex;gap:8px}
+    .button-group input{flex:1}
+    .button{background:var(--gold);color:#0f0e0b;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:700}
+    .muted{color:var(--muted)}
+    #errorUpload{color:#ff6b6b;min-height:20px}
+    #successUpload{color:#7bff7b;min-height:20px;word-wrap:break-word}
+
+    /* GALLERY HEADER */
+    header.page-header{display:flex;gap:12px;align-items:center;max-width:1100px;margin:0 auto 18px;padding:0 18px;box-sizing:border-box}
+    header.page-header h1{font-family:'Playfair Display';font-size:20px;color:var(--gold);margin:0}
+    header.page-header .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+    /* NJORA GALLERY */
+    .gallery-wrap{max-width:1100px;margin:14px auto;padding:18px}
+    .section-title{font-family:'Playfair Display';font-size:28px;color:var(--gold);margin:0 0 12px 0}
+    .filter-row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    select#categoryFilterN{padding:8px 10px;border-radius:8px;background:#041026;color:#fff;border:1px solid #213547}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+    .card{background:#021226;border-radius:12px;overflow:hidden;border:1px solid #172d3b;box-shadow:0 6px 20px rgba(0,0,0,0.6);position:relative}
+    .card img{width:100%;height:170px;object-fit:cover;display:block;cursor:pointer}
+    .meta{padding:12px;font-size:13px;color:#cbd5e1}
+    .photo-title{color:#34d399;font-weight:700;font-size:15px;margin-bottom:6px}
+    .photo-description{font-size:13px;color:#94a3b8;margin-bottom:8px}
+    .muted-small{color:#94a3b8;font-size:12px}
+
+    .delete-btn{position:absolute;top:10px;right:10px;padding:6px 8px;background:#f87171;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+    .delete-btn:hover{background:#dc2626}
+    .select-checkbox{position:absolute;top:10px;left:10px;width:18px;height:18px;cursor:pointer}
+
+    /* Bulk actions */
+    #bulkActions{display:flex;gap:8px;margin:12px 0 18px}
+    #bulkActions button{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    #selectAllBtn{background:#2563eb;color:white}
+    #deleteSelectedBtn{background:#f87171;color:white}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));z-index:200}
+    .modal.open{display:flex}
+    .modal-card{width:min(920px,95%);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:1fr 1fr;gap:14px;box-sizing:border-box}
+    .modal-card img{width:100%;height:auto;border-radius:8px;display:block}
+    .modal-meta h2{margin:0 0 8px 0;font-family:'Playfair Display';color:var(--gold)}
+    .modal-meta .muted{color:var(--muted);margin-bottom:8px}
+    .modal-actions{display:flex;gap:8px;margin-top:8px}
+
+    /* responsive */
+    @media (max-width:920px){ .modal-card{grid-template-columns:1fr;align-items:center} .card img{height:210px} }
+    @media (max-width:600px){ .card img{height:200px} .section-title{font-size:22px} }
+    footer{max-width:1100px;margin:28px auto;text-align:center;color:var(--muted);font-size:13px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- Two-column: Upload (left) + Gallery (right) -->
+    <div class="two-col">
+
+      <!-- UPLOAD PANEL -->
+      <div class="panel">
+        <h2>📤 Njora Photo Upload</h2>
+
+        <label class="muted">Select Category</label>
+        <select id="categorySelectUpload">
+          <option value="">-- Select Category --</option>
+        </select>
+
+        <label class="muted" style="margin-top:10px;">Create New Category</label>
+        <input id="newCategoryInput" type="text" placeholder="Enter new category">
+        <div class="button-group">
+          <button id="createCategoryBtn" class="button">Create</button>
+        </div>
+
+        <h3 style="font-family:'Playfair Display';margin:14px 0 6px 0;color:var(--gold)">Photo Details</h3>
+        <label class="muted">Picture Name (Required)</label>
+        <input id="pictureNameInput" type="text" placeholder="Enter name of the photo">
+
+        <label class="muted">Picture Description (Optional)</label>
+        <input id="pictureDescriptionInput" type="text" placeholder="Enter a short description">
+
+        <label class="muted">Select Photo</label>
+        <input id="fileInput" type="file" accept="image/*">
+
+        <div style="margin-top:10px;">
+          <button id="uploadBtn" class="button">Upload Photo</button>
+        </div>
+
+        <p id="errorUpload"></p>
+        <p id="successUpload"></p>
+      </div>
+
+      <!-- NJORA GALLERY -->
+      <div class="gallery-wrap panel" aria-live="polite">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div>
+            <div class="section-title">Featured Collection</div>
+            <div class="muted">Discover handmade jewelry & curated photos</div>
+          </div>
+
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <label class="muted" style="margin-right:6px">Filter</label>
+            <select id="categoryFilterN">
+              <option value="">All</option>
+            </select>
+            <div style="width:8px"></div>
+            <a href="#" class="muted" id="goUpload" onclick="document.getElementById('fileInput').scrollIntoView({behavior:'smooth'})">Go to Upload</a>
+          </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions">
+            <button id="selectAllBtn">Select All</button>
+            <button id="deleteSelectedBtn">Delete Selected</button>
+        </div>
+
+        <div id="errorGallery" class="muted-small" style="margin-bottom:12px"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+
+    <footer>© 2025 Njora — All Rights Reserved</footer>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div>
+        <img id="modalImg" src="" alt="Full Image">
+      </div>
+      <div class="modal-meta">
+        <h2 id="modalTitle">Title</h2>
+        <div id="modalDesc" class="muted">Description</div>
+        <div id="modalInfo" class="muted-small" style="margin-top:8px"></div>
+        <div class="modal-actions">
+          <button class="button" id="modalAddBtn">Add to Cart</button>
+          <button class="button" style="background:#444;color:#fff" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API base
+    const API = "http://localhost:5000";
+
+    // ---------------- UPLOAD LOGIC ----------------
+    async function loadCategoriesInto(selectId){
+      try {
+        const res = await fetch(`${API}/api/categories`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch');
+
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">-- Select Category --</option>`;
+        data.categories.forEach(cat=>{
+          const opt = document.createElement('option');
+          opt.value = cat; opt.textContent = cat;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error('loadCategoriesInto error', e);
+        // don't break UI; show minimal message on relevant places
+        if (selectId === 'categoryFilterN') document.getElementById('errorGallery').textContent = "⚠ Failed to load categories.";
+      }
+    }
+
+    // initial load categories into both upload select and gallery filter
+    loadCategoriesInto('categorySelectUpload');
+    loadCategoriesInto('categoryFilterN');
+
+    document.getElementById("createCategoryBtn").onclick = async () => {
+      const newCat = document.getElementById("newCategoryInput").value.trim();
+      const err = document.getElementById("errorUpload");
+      const success = document.getElementById("successUpload");
+      err.textContent = ""; success.textContent = "";
+      if (!newCat) { err.textContent = "Enter a category name!"; return; }
+
+      try {
+        const res = await fetch(`${API}/api/create-category`, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ category: newCat })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Create failed');
+        success.textContent = "Category created!";
+        document.getElementById("newCategoryInput").value = "";
+        // refresh both selects
+        loadCategoriesInto('categorySelectUpload');
+        loadCategoriesInto('categoryFilterN');
+      } catch(e){
+        err.textContent = "⚠ " + (e.message || 'Error');
+      }
+    };
+
+    document.getElementById("uploadBtn").onclick = async () => {
+      const file = document.getElementById("fileInput").files[0];
+      const category = document.getElementById("categorySelectUpload").value;
+      const pictureName = document.getElementById("pictureNameInput").value.trim();
+      const pictureDescription = document.getElementById("pictureDescriptionInput").value.trim();
+
+      const err = document.getElementById("errorUpload");
+      const success = document.getElementById("successUpload");
+      err.textContent = ""; success.textContent = "";
+
+      if (!pictureName) { err.textContent = "Picture Name is required!"; return; }
+      if (!file) { err.textContent = "Please choose a file!"; return; }
+      if (!category) { err.textContent = "Select a category!"; return; }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("category", category);
+      formData.append("name", pictureName);
+      formData.append("description", pictureDescription);
+
+      try {
+        const res = await fetch(`${API}/api/upload`, { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        success.innerHTML = `Uploaded! <br><a href="${data.url}" target="_blank">View Image</a>`;
+        // reset inputs
+        document.getElementById("fileInput").value = "";
+        document.getElementById("pictureNameInput").value = "";
+        document.getElementById("pictureDescriptionInput").value = "";
+        // reload gallery
+        loadImages(document.getElementById('categoryFilterN').value);
+      } catch(e){
+        err.textContent = "⚠ " + (e.message || 'Upload error');
+      }
+    };
+
+    // ---------------- GALLERY LOGIC ----------------
+    const grid = document.getElementById("grid");
+    const categoryFilter = document.getElementById("categoryFilterN");
+    const errorGallery = document.getElementById("errorGallery");
+    const selectAllBtn = document.getElementById("selectAllBtn");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+
+    let imageCheckboxes = [];
+
+    async function loadImages(category=''){
+      grid.innerHTML = ''; errorGallery.textContent = 'Loading...';
+      imageCheckboxes = [];
+
+      try {
+        const url = category ? `${API}/api/images?category=${encodeURIComponent(category)}` : `${API}/api/images`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch images');
+
+        const images = data.resources || [];
+        if (images.length === 0) { errorGallery.textContent = 'No images found.'; return; }
+        errorGallery.textContent = '';
+
+        images.forEach(img=>{
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          // checkbox
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'select-checkbox';
+          checkbox.dataset.publicId = img.public_id;
+          imageCheckboxes.push(checkbox);
+
+          // image element (optimized resize for grid)
+          const optimized = img.secure_url.replace('/upload/', '/upload/w_600,h_420,c_fill,g_auto/');
+          const imageEl = document.createElement('img');
+          imageEl.src = optimized;
+          imageEl.alt = img.name || img.public_id;
+          imageEl.loading = 'lazy';
+          imageEl.onclick = ()=> openModalForImage(img);
+
+          // meta
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          const titleHtml = `<div class="photo-title">${escapeHtml(img.name || 'Untitled Photo')}</div>`;
+          const descHtml = img.description ? `<div class="photo-description">${escapeHtml(img.description)}</div>` : `<div class="photo-description muted">No description available.</div>`;
+          const mutedHtml = `<div class="muted-small">Public ID: ${escapeHtml(img.public_id)}</div><div class="muted-small">Uploaded: ${new Date(img.created_at).toLocaleString()}</div>`;
+          meta.innerHTML = titleHtml + descHtml + mutedHtml;
+
+          // delete button
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.textContent = 'Delete';
+          delBtn.onclick = (e)=> { e.stopPropagation(); deleteImageConfirm(img.public_id); };
+
+          // append in order
+          card.appendChild(checkbox);
+          card.appendChild(imageEl);
+          card.appendChild(meta);
+          card.appendChild(delBtn);
+
+          grid.appendChild(card);
+        });
+
+      } catch (e) {
+        console.error(e);
+        errorGallery.textContent = "⚠ Failed to load images: " + (e.message || 'Error');
+      }
+    }
+
+    // Escape helper to avoid injecting HTML from backend
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; }); }
+
+    // Delete single image (confirm)
+    async function deleteImageConfirm(public_id){
+      if(!confirm("Are you sure you want to delete this image?")) return;
+      try {
+        // your API expects POST /api/delete-image with public_id in body
+        const res = await fetch(`${API}/api/delete-image`, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ public_id })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Delete failed');
+        // reload
+        loadImages(categoryFilter.value);
+      } catch(e){
+        alert("⚠ Error deleting image: " + (e.message || 'Error'));
+      }
+    }
+
+    // Bulk delete selected
+    async function deleteSelectedImages(){
+      const selected = imageCheckboxes.filter(cb=>cb.checked).map(cb=>cb.dataset.publicId);
+      if(selected.length === 0){ alert("No images selected."); return; }
+      if(!confirm(`Are you sure you want to delete ${selected.length} selected image(s)?`)) return;
+
+      try {
+        // delete one by one to keep API simple (you can bulk optimize server-side)
+        for(const id of selected){
+          const res = await fetch(`${API}/api/delete-image`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ public_id: id })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Delete failed');
+        }
+        loadImages(categoryFilter.value);
+      } catch(e){
+        alert("⚠ Bulk delete error: " + (e.message || 'Error'));
+      }
+    }
+
+    // Toggle select all
+    function toggleSelectAll(){
+      const allChecked = imageCheckboxes.length > 0 && imageCheckboxes.every(cb=>cb.checked);
+      imageCheckboxes.forEach(cb=>cb.checked = !allChecked);
+    }
+
+    // Event listeners for bulk buttons
+    selectAllBtn.addEventListener('click', toggleSelectAll);
+    deleteSelectedBtn.addEventListener('click', deleteSelectedImages);
+    categoryFilter.addEventListener('change', ()=> loadImages(categoryFilter.value));
+
+    // initial load
+    loadImages();
+    loadCategoriesInto('categoryFilterN');
+
+    // ---------------- MODAL ----------------
+    const modal = document.getElementById('modal');
+    function openModalForImage(img){
+      // use a larger but optimized resize
+      const large = img.secure_url.replace('/upload/', '/upload/w_1200,h_900,c_limit,g_auto/');
+      document.getElementById('modalImg').src = large;
+      document.getElementById('modalTitle').textContent = img.name || 'Untitled';
+      document.getElementById('modalDesc').textContent = img.description || 'No description available.';
+      document.getElementById('modalInfo').textContent = `Public ID: ${img.public_id} • Uploaded: ${new Date(img.created_at).toLocaleString()}`;
+
+      // Configure Add to Cart - placeholder
+      document.getElementById('modalAddBtn').onclick = ()=> { alert((img.name||'Item') + ' added to cart (demo)'); };
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(e){
+      if(e && e.target !== e.currentTarget) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+    // close when clicking overlay
+    modal.onclick = closeModal;
+
+    // keyboard close
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); } });
+
+    // small helper - reload categories into both selects occasionally (call if you create new)
+    function refreshAllCategories(){ loadCategoriesInto('categorySelectUpload'); loadCategoriesInto('categoryFilterN'); }
+
+    // expose a function to the top link to jump to upload
+    document.getElementById('goUpload').addEventListener('click', (ev)=>{ ev.preventDefault(); document.querySelector('.panel input[type="file"]').scrollIntoView({behavior:'smooth'}); });
+
+  </script>
+</body>
+</html>

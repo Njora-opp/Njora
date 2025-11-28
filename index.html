@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Njora — Luxury Jewelry Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --bg:#12251b;
+  --panel:#0e0e10;
+  --muted:#bdb6af;
+  --gold:#B5A067;
+  --accent:linear-gradient(135deg,#f7e6b8 0%, #ffd664 50%, #b7832e 100%);
+  --glass: rgba(255,255,255,0.03);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, system-ui, Segoe UI, Roboto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.02), transparent), var(--bg);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+}
+
+
+    /* ---------------- INTRO OVERLAY ----------------
+       Combined chosen styles:
+         - Luxury Gold Text Reveal (A)
+         - Quick Minimal Blur Reveal (C)
+    ------------------------------------------------ */
+    #intro {
+      position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#060506 0%, #000000 100%);
+      overflow:hidden;
+    }
+    #intro .back {
+      position:absolute;inset:0;
+      background:
+        radial-gradient(600px 300px at 20% 30%, rgba(199,154,64,0.06), transparent),
+        radial-gradient(400px 200px at 80% 70%, rgba(215,180,90,0.03), transparent);
+      filter:blur(0px);
+      transition:filter 0.7s ease;
+    }
+    #intro .logoWrap {
+      position:relative;z-index:5;text-align:center;
+      transform:translateY(0);opacity:1;transition:all 0.8s ease;
+    }
+    #intro .logo {
+      font-family:'Playfair Display';font-size:72px;letter-spacing:6px;
+      background:var(--accent);-webkit-background-clip:text;background-clip:text;color:transparent;
+      -webkit-text-stroke: 0px rgba(199,154,64,0.0);
+      filter:drop-shadow(0 6px 24px rgba(199,154,64,0.08));
+      animation:logoPop 1.8s cubic-bezier(.2,.9,.3,1) forwards;
+    }
+    @keyframes logoPop{
+      0%{opacity:0;transform:scale(.85) translateY(8px) rotate(-2deg)}
+      40%{opacity:1;transform:scale(1.03) translateY(-6px) rotate(1deg)}
+      100%{opacity:1;transform:scale(1) translateY(0) rotate(0)}
+    }
+
+    /* sparkles around logo */
+    #intro .sparks{display:flex;gap:8px;justify-content:center;margin-top:14px;opacity:0;animation:sparksIn 1.2s .6s forwards;}
+    #intro .spark{width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);opacity:.95;transform:scale(.6);animation:tinyPop 1.8s infinite ease-in-out;}
+    #intro .spark:nth-child(2){animation-delay:.15s}
+    #intro .spark:nth-child(3){animation-delay:.32s}
+    @keyframes sparksIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+    @keyframes tinyPop{0%{transform:scale(.7)}50%{transform:scale(1.15)}100%{transform:scale(.7)}}
+
+    /* gold shine sweep */
+    #intro .shine {
+      position:absolute;left:-50%;top:30%;width:200%;height:40%;background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));transform:skewX(-20deg);
+      opacity:0;animation:shineSweep 1.1s 0.6s forwards;
+    }
+    @keyframes shineSweep{0%{left:-80%;opacity:0}60%{left:20%;opacity:1}100%{left:120%;opacity:0}}
+
+    /* final quick blur & fade reveal (minimal C style) */
+    #intro.hide {
+      animation:introHide 0.7s ease forwards;
+    }
+    @keyframes introHide{
+      0%{opacity:1;transform:scale(1);filter:blur(0px)}
+      100%{opacity:0;transform:scale(1.02);filter:blur(18px);visibility:hidden}
+    }
+
+    /* ---------------- NAVBAR ---------------- */
+.navbar {
+  display: grid; /* Changed to grid for better control */
+  grid-template-columns: auto 1fr auto; /* Hamburger | Logo (centered) | Search/Icons */
+  align-items: center;
+  padding: 12px 16px;
+  position: -webkit-sticky;
+  top: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  backdrop-filter: blur(6px);
+  z-index: 50;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.brand {
+  /* This will now be the centered logo */
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center; /* Center the brand content within its grid cell */
+  grid-column: 2; /* Place brand in the middle column */
+}
+
+.logo {
+  font-family: 'Playfair Display';
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 20px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo .glyph {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: #111;
+  font-weight: 700;
+}
+
+.navlinks {
+  display: none; /* Hide navlinks always for this mobile-centric layout */
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end; /* Align actions to the right */
+  grid-column: 3; /* Place actions in the rightmost column */
+}
+
+.nav-actions input {
+  width: 160px !important;
+  padding: 6px 8px !important;
+}
+
+.menu-btn {
+  /* This will now be on the left */
+  display: inline-flex; /* Always show hamburger button */
+  background: transparent;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  grid-column: 1; /* Place menu button in the leftmost column */
+  justify-self: flex-start; /* Align it to the start of its cell */
+}
+
+.menu-btn svg {
+  display: block;
+}
+
+/* Specific adjustments for smaller mobile screens */
+@media (max-width: 880px) {
+  .navbar {
+    grid-template-columns: auto 1fr auto; /* Hamburger | Logo (centered) | Search/Icons */
+  }
+
+  .nav-actions input {
+    display: none; /* Hide search input on smaller mobile screens */
+  }
+}
+
+/* Mobile specific layout adjustments */
+@media (max-width: 880px) {
+    .navbar {
+        /* Align Brand (Left) and Actions (Right) on mobile */
+        padding: 10px 14px; 
+    }
+    
+    .nav-actions {
+        /* Ensure actions including the menu button are grouped and on the far right */
+        order: 3;
+    }
+    
+    .brand {
+        /* Ensure the logo/brand stays on the far left */
+        order: 1;
+    }
+
+    /* Hide search input on smaller mobile screens to save space */
+    .nav-actions input {
+        display: none; 
+    }
+}
+
+    .nav-actions{display:flex;gap:12px;align-items:center}
+    .icon-btn{background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;display:inline-grid;place-items:center;cursor:pointer}
+
+    /* mobile menu button (added, doesn't remove existing lines) */
+    .menu-btn{display:none;background:transparent;border:none;padding:8px;border-radius:8px;cursor:pointer;color:var(--muted)}
+    .menu-btn svg{display:block}
+    @media (max-width:880px){.navlinks{display:none}.menu-btn{display:inline-flex}}
+
+    /* ---------------- LAYOUT ---------------- */
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:28px;max-width:1300px;margin:24px auto;transition:all .3s ease}
+
+    /* Sidebar */
+    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.02)}
+    .side-title{font-weight:700;color:var(--gold);font-family:'Playfair Display';margin-bottom:10px}
+    .category{display:flex;flex-direction:column;gap:8px}
+    .cat-item{padding:10px;border-radius:10px;color:var(--muted);display:flex;align-items:center;gap:10px;cursor:pointer}
+    .cat-item:hover{background:rgba(255,255,255,0.02);color:#fff}
+
+    /* Filter chips */
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .chip{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);font-size:14px}
+
+    /* Main */
+/* Main */
+.hero{display:flex;gap:28px;align-items:center;padding:18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+.hero-left{
+    flex:1;
+    /* ADDED to move left */
+    margin-left: 0px; 
+}
+.hero-right{
+width:40%;
+position:relative; 
+}
+/* ... rest of the CSS */
+.hero h1{font-family:'Playfair Display';font-size:48px;margin:0 0 12px 0;color:var(--gold);line-height:1}
+.sub{color:var(--muted);margin-bottom:18px}
+.cta{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--gold);color:#0f0e0b;font-weight:700;text-decoration:none;transition:transform .18s ease}
+.cta:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(199,154,64,0.08)}
+
+/* product grid - NO CHANGES */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+/* product grid */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+.card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
+    padding:14px;
+    border-radius:12px;
+    /* --- MODIFICATION START --- */
+    /* Change border to solid gold */
+    border: 1px solid var(--gold); 
+    /* --- MODIFICATION END --- */
+    position:relative;
+    overflow:hidden;
+    transition:transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s
+}
+.card:hover{transform:translateY(-8px);box-shadow:0 12px 40px rgba(0,0,0,0.6),0 6px 18px rgba(199,154,64,0.04)}
+/* ... (rest of your CSS remains the same) ... */
+.card .media{height:220px;border-radius:10px;background:linear-gradient(135deg,#111 0%, #1a1a1a 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card h3{margin:12px 0 6px 0;font-family:'Playfair Display';font-size:18px}
+.card .tags{display:flex;gap:8px;margin-top:10px}
+.tag{font-size:13px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);color:var(--muted);background:transparent;cursor:pointer;transition:all .15s}
+.tag:hover{color:#fff;background:rgba(199,154,64,0.06);border-color:rgba(199,154,64,0.08)}
+
+/* floating gems animation */
+.gem{position:absolute;opacity:0.78}
+.gem.one{
+    width:0px;
+    /* CHANGE 2: POSITION GEM ONE */
+    left:-410px; /* -40px from the right edge */
+    top:-250px; /* -50px from the top edge (moves up) */
+    transform:rotate(12deg);
+    animation:floaty 8s ease-in-out infinite
+}
+.gem.two{
+    width:60px;
+    /* CHANGE 3: POSITION GEM TWO */
+    left:-110px; /* -20px from the left edge (moves left) */
+    bottom:90px; /* 40px from the bottom edge (moves up) */
+    animation:floaty 10s ease-in-out infinite;
+    animation-delay:0.5s
+}
+@keyframes floaty{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(6deg)}100%{transform:translateY(0) rotate(0)}}
+
+/* modal - NO CHANGES */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));z-index:200}
+.modal.open{display:flex}
+.modal-card{width:min(920px,95%);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.modal-card .meta h2{margin:0 0 8px 0;font-family:'Playfair Display'}
+
+/* responsive */
+@media (max-width:1000px){
+/* --- MODIFIED CSS START --- */
+/* LAYOUT max-width increased for more space */
+.layout{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:28px;max-width:1400px; /* INCREASED */ margin:24px auto;transition:all .3s ease}
+
+/* product grid - MODIFIED: 4 columns on desktop */
+.grid{display:grid;grid-template-columns:repeat(4,1fr); /* CHANGED FROM 3 */ gap:20px;margin-top:22px}
+.card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
+    padding:18px; /* INCREASED PADDING */
+    border-radius:12px;
+    border: 1px solid var(--gold); 
+    position:relative;
+    overflow:hidden;
+    transition:transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s
+}
+}
+.card .media{height:260px; /* INCREASED HEIGHT */ border-radius:10px;background:linear-gradient(135deg,#111 0%, #1a1a1a 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* responsive */
+@media (max-width:1200px){ /* NEW BREAKPOINT ADDED FOR 3 COLUMNS */
+    .grid{grid-template-columns:repeat(3,1fr)} 
+}
+@media (max-width:1000px){
+    .layout{grid-template-columns:1fr;padding:18px}
+    /* ... other styles ... */
+    .grid{grid-template-columns:repeat(2,1fr)} /* FALLBACK TO 2 COLUMNS */
+}
+/* --- MODIFIED CSS END --- */
+@media (max-width:600px){
+    /* START MODIFICATION */
+    .grid{grid-template-columns:1fr}
+    .card {
+        max-width: 440px; /* Make the card narrower */
+        margin-left: auto; /* Center the card */
+        margin-right: auto; /* Center the card */
+    }
+    /* END MODIFICATION */
+    .navbar{padding:12px 16px}
+    .modal-card{grid-template-columns:1fr;align-items:center}
+    .hero{
+        padding:18px;
+        /* Add flex-direction: column here if needed for mobile stacking */
+    }
+    .hero-left{text-align:center}
+    .cta{display:inline-block}
+}
+.cta{display:inline-block}
+      .modal-card{grid-template-columns:1fr;align-items:center}
+      .hero{padding:18px}
+      .hero-left{text-align:center}
+      .cta{display:inline-block}
+
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .center{display:grid;place-items:center}
+    .shadow-glow{box-shadow:0 8px 30px rgba(0,0,0,0.6),0 0 16px rgba(199,154,64,0.06)}
+
+    /* animated logo text */
+    .animated-logo{display:inline-block;position:relative;padding:6px 12px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);overflow:visible}
+    .animated-logo .spark{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);opacity:0;animation:spark 2.6s infinite}
+    .animated-logo .spark.a{top:8px;left:6px;animation-delay:0s}
+    .animated-logo .spark.b{top:-6px;right:22px;animation-delay:0.6s}
+    @keyframes spark{0%{opacity:0;transform:scale(0.6)}40%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
+
+  @media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+  }
+  .content {
+    margin-left: 0;
+    padding: 20px;
+  }
+  .products {
+    grid-template-columns: 1fr 1fr;
+  }
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .products {
+    grid-template-columns: 1fr;
+  }
+  .navbar h1 {
+    font-size: 22px;
+  }
+  .product-card img {
+    height: 180px;
+  }
+}
+
+/* small utility for mobile sidebar toggle */
+.mobile-sidebar { display:none; }
+@media (max-width:880px){
+  .mobile-sidebar{display:block}
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;left:12px;right:12px;top:76px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.02);z-index:120}
+}
+.footer {
+  margin-top: auto;
+  padding: 14px 12px; /* reduced height */
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.4));
+  border-top: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* reduced gap */
+}
+
+.footer-brand h2 {
+  font-family: 'Playfair Display';
+  font-size: 22px; /* smaller */
+  color: var(--gold);
+  margin: 0;
+}
+
+.footer-brand p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 14px; /* reduced */
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color .25s;
+}
+
+.footer-links a:hover {
+  color: var(--gold);
+}
+
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.footer-social svg {
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity .25s, transform .25s;
+}
+
+.footer-social svg:hover {
+  opacity: 1;
+  transform: translateY(-3px);
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --------------------------- GALLERY --------------------------- */
+.gallery-container { max-width: 1200px; margin: auto; padding: 60px 20px; text-align: center; }
+.section-title { font-family: "Playfair Display"; font-size: 34px; color: var(--gold-soft); margin-bottom: 20px;}
+#categoryFilter { margin-top: 20px; padding: 12px 16px; background: var(--panel); color: white; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); width: 240px; }
+.njora-gallery { margin-top: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+.njora-card { background: var(--panel); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: .3s; opacity: 0; transform: translateY(20px); animation: fadeInCard 0.6s forwards; cursor: pointer; }
+.njora-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(211,184,127,0.3); }
+.njora-card img { width: 100%; height: 260px; object-fit: cover; transition: .4s; }
+.njora-card:hover img { transform: scale(1.07); }
+.njora-card-content { padding: 15px; text-align: left; }
+.njora-card-title { font-family: "Playfair Display"; color: var(--gold); font-size: 19px; margin-bottom: 8px; }
+.njora-card p { color: var(--muted); font-size: 14px; }
+@keyframes fadeInCard { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+/* --- ADMIN LOGIN BUTTON STYLES (Ensure this is present from previous steps) --- */
+.admin-login-btn {
+    /* Base style */
+    display: none; 
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    background: var(--accent); 
+    color: var(--bg); 
+    border: 1px solid var(--gold);
+    transition: all 0.25s cubic-bezier(.2,.9,.3,1);
+    box-shadow: 0 4px 15px rgba(181, 160, 103, 0.3); 
+}
+
+.admin-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(181, 160, 103, 0.45);
+}
+
+/* 1. Desktop Placement (Far Left) */
+@media (min-width: 881px) {
+    .admin-login-btn {
+        display: inline-block;
+        /* These two properties place the button in the first column 
+           and align it to the start (left) of that column */
+        justify-self: flex-start; 
+        grid-column: 1; 
+    }
+}
+
+/* 2. Mobile Adjustment (Hide Admin Button on Smallest Screens) */
+@media (max-width: 600px) {
+    .admin-login-btn {
+        /* Hide completely on phones to prioritize logo and menu button */
+        display: none !important;
+    }
+}
+  </style>
+  <script>
+// OPEN MODAL
+function openModal(imageUrl, title = "Product") {
+  const modal = document.getElementById("modal");
+
+  // Set image
+  const modalImg = document.getElementById("modalImage");
+  modalImg.src = imageUrl;
+
+  // Set title
+  document.getElementById("modalTitle").textContent = title;
+
+  // Show modal
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+// CLOSE MODAL
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+
+  const modal = document.getElementById("modal");
+  modal.style.display = "none";
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "auto";
+}
+</script>
+
+</head>
+<script>
+function openModal(imageUrl, title = "Product", desc = "", price = "") {
+  document.getElementById("modalImage").src = imageUrl;
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalDesc").textContent = desc || "No description available.";
+  document.getElementById("modalPrice").textContent = price ? `₹ ${price}` : "";
+
+  const modal = document.getElementById("modal");
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+
+  const modal = document.getElementById("modal");
+  modal.style.display = "none";
+  modal.setAttribute("aria-hidden", "true");
+}
+</script>
+
+<body>
+  <!-- INTRO OVERLAY -->
+  <div id="intro" aria-hidden="true">
+    <div class="back"></div>
+    <div class="logoWrap">
+      <div class="logo" src=>NJORA</div>
+      <div class="sparks" aria-hidden="true">
+        <div class="spark" style="width:12px;height:12px"></div>
+        <div class="spark" style="width:10px;height:10px"></div>
+        <div class="spark" style="width:14px;height:14px"></div>
+      </div>
+    </div>
+    <div class="shine" aria-hidden="true"></div>
+  </div>
+
+<header class="navbar" role="banner">
+  <div class="brand">
+    <div class="logo" style="display:flex; align-items:center; gap:8px;">
+      <!-- Logo Image -->
+      <img src="WhatsApp_Image_2025-11-22_at_21.00.23_e9193173-removebg-preview.png" 
+           alt="Njora Logo" 
+           style="height:70px; width:auto; object-fit:contain;" />
+
+      <!-- Text next to logo -->
+    </div>
+
+    <nav class="navlinks" role="navigation" aria-label="Main">
+      <a href="#">Collections</a>
+      <a href="#">Bespoke</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="menu-btn" aria-label="Open menu" title="Menu" onclick="toggleMobileSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+
+  <!-- mobile sidebar (toggle) -->
+  <div id="mobileSidebar" class="mobile-sidebar" aria-hidden="true" style="display:none"></div>
+
+  <main class="layout" id="mainContent" aria-live="polite">
+    <aside class="sidebar shadow-glow" id="sidebarDesktop">
+        <div class="nav-actions">
+
+    
+    <button class="menu-btn" aria-label="Open menu" title="Menu" onclick="toggleMobileSidebar()">
+        </button>
+</div>
+<button 
+    onclick="window.location.href='https://github.com/stablesterling/Njora/blob/main/upload.html'" 
+    style="
+        /* Layout and Typography */
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        display: inline-block; 
+        
+        /* Gold Theme Colors */
+        background: linear-gradient(135deg,#f7e6b8 0%, #ffd664 50%, #b7832e 100%);
+        color: #12251b; /* Dark text based on --bg */
+        border: 1px solid #B5A067; /* --gold border */
+        
+        /* Shadow and Transition */
+        box-shadow: 0 4px 10px rgba(181, 160, 103, 0.4);
+        transition: all 0.2s ease-in-out;
+    ">
+    Admin login
+</button>
+
+      <div style="margin-top:18px" class="side-title">Filters</div>
+      <div class="chips">
+        <div class="chip">Diamond</div>
+        <div class="chip">Gold</div>
+        <div class="chip">Platinum</div>
+        <div class="chip">Pearl</div>
+      </div>
+
+      <div style="margin-top:18px" class="side-title">Sale</div>
+      <div style="padding:12px;background:linear-gradient(90deg,rgba(199,154,64,0.06),transparent);border-radius:10px;margin-top:8px">
+        <div style="font-weight:700;color:var(--gold)">Exclusive Offer</div>
+        <div class="muted" style="font-size:13px">Up to 25% off selected bespoke pieces</div>
+      </div>
+    </aside>
+
+    <section>
+      <div class="hero">
+        <div class="hero-left">
+          <div class="animated-logo"><span style="font-family:'Playfair Display';font-size:28px;letter-spacing:2px;color:var(--gold)">Njora</span>
+            <span class="spark a"></span>
+            <span class="spark b"></span>
+          </div>
+          <h1>Where Craftsmanship Meets Brilliance</h1>
+          <p class="sub">Discover handcrafted rings, necklaces and one-of-a-kind bespoke pieces — curated for the moments you never forget.</p>
+          <a class="cta" href="#products">Explore Collection</a>
+        </div>
+        <div class="hero-right center" aria-hidden="true">
+          <div class="gem one" aria-hidden="true">
+            <!-- diamond svg -->
+            <svg viewBox="0 0 200 200" width="160" height="160"><defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#fff6e0"/><stop offset="1" stop-color="#d4b26a"/></linearGradient></defs><path d="M100 10 L140 70 L100 190 L60 70 Z" fill="url(#g1)" stroke="#f3e3b0" stroke-width="3"/></svg>
+          </div>
+          <div class="gem two" aria-hidden="true">
+            <svg viewBox="0 0 200 200" width="120" height="120"><path d="M100 20 L150 60 L100 180 L50 60 Z" fill="#f7e6b8" stroke="#d9b657" stroke-width="2"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- modal -->
+<div id="modal" class="modal" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-card" onclick="event.stopPropagation()">
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="center" style="background:rgba(255,255,255,0.01);padding:12px;border-radius:10px">
+
+        <div id="modalMedia" style="width:320px;height:320px;display:grid;place-items:center">
+          <!-- REPLACED SVG WITH IMG -->
+          <img id="modalImage" 
+               src="" 
+               style="width:320px;height:320px;object-fit:contain;border-radius:10px;">
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="tag" id="modalAddBtn">Add to Cart</button>
+        <button class="tag" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="meta">
+      <h2 id="modalTitle" style="font-family:'Playfair Display';margin-top:6px">Title</h2>
+      <div id="modalDesc" class="muted">
+        Short description about the piece, materials and craftsmanship.
+      </div>
+
+      <div id="modalPrice" 
+           style="margin-top:14px;font-weight:700;color:var(--gold);font-size:20px">
+        ₹ 0
+      </div>
+
+      <div style="margin-top:12px" class="muted">
+        Care Instructions: Wipe gently with a soft cloth. Store separately to avoid scratches.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <div>
+    <section class="gallery-container" id="gallery-section">
+  <h2 class="section-title">Featured Collection</h2>
+
+  <label style="color: var(--muted); font-size: 14px;">Filter by Category</label><br>
+  <select id="categoryFilter">
+    <option value="">-- All Categories --</option>
+  </select>
+<div id="products" class="grid" aria-live="polite">
+  <img id="modalImage" style="width:320px;height:320px;object-fit:contain;">
+
+    </div>
+  <p id="error" style="color:#ff6b6b;"></p>
+
+  <div id="gallery" class="njora-gallery">
+  
+  </div>
+</section>
+</div>
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <h2>Njora</h2>
+      <p>Luxury Crafted Jewelry</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+
+    <div class="footer-social">
+      <!-- Icons Example -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--muted)"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5a3.5 3.5 0 0 1 3.8-3.9c.8 0 1.7.1 2.5.2v2.6H15c-1.2 0-1.5.6-1.5 1.4V12H18l-.5 3h-2.9v7A10 10 0 0 0 22 12z"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--muted)"><path d="M21.6 6.2a8 8 0 0 1-2.3.6 4 4 0 0 0 1.8-2.2 8.3 8.3 0 0 1-2.6 1A4 4 0 0 0 11.1 9a4.2 4.2 0 0 0 .1.9A11.5 11.5 0 0 1 3.3 5a4 4 0 0 0 1.3 5.3 4 4 0 0 1-1.8-.5v.1A4 4 0 0 0 6 13.5a4 4 0 0 1-1.8.1A4.1 4.1 0 0 0 8 15.8a8.2 8.2 0 0 1-5 1.7H2a11.7 11.7 0 0 0 6.3 1.8c7.6 0 11.7-6.3 11.7-11.8v-.5A8 8 0 0 0 22 5.2a8.2 8.2 0 0 1-2.4 1Z"/></svg>
+    </div>
+
+    <div class="footer-copy">© 2025 Njora — All Rights Reserved</div>
+  </div>
+</footer>
+<script>
+// ----- OPEN MODAL -----
+function openModal(product) {
+  const modal = document.getElementById("modal");
+
+  // Fill modal content
+  document.getElementById("modalTitle").innerText = product.title;
+  document.getElementById("modalDesc").innerText = product.desc;
+  document.getElementById("modalPrice").innerText = "₹ " + product.price;
+
+  // Insert media (image/svg)
+  const modalMedia = document.getElementById("modalMedia");
+  modalMedia.innerHTML = "";
+  modalMedia.appendChild(product.media.cloneNode(true));
+
+  // Show modal
+  modal.setAttribute("aria-hidden", "false");
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden"; 
+}
+
+// ----- CLOSE MODAL -----
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+
+  const modal = document.getElementById("modal");
+  modal.style.display = "none";
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "auto";
+}
+
+// ----- ATTACH CLICK LISTENERS TO CARDS -----
+function bindCardListeners() {
+  const cards = document.querySelectorAll(".product-card");
+
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      const product = {
+        title: card.getAttribute("data-title"),
+        desc: card.getAttribute("data-desc"),
+        price: card.getAttribute("data-price"),
+        media: card.querySelector(".card-media")
+      };
+      openModal(product);
+    });
+  });
+}
+
+// Run after page loads
+document.addEventListener("DOMContentLoaded", bindCardListeners);
+</script>
+
+  <script>
+    
+    // preserve your product data and add no destructive changes
+
+    // ---------------- INTRO LOGIC ----------------
+    // Show intro for a short time, then blend A (gold reveal) + C (quick blur reveal)
+    (function handleIntro(){
+      const intro = document.getElementById('intro');
+      // total visible time: ~2.8s to let the logoPop & shine finish, then hide
+      const INTRO_VISIBLE_MS = 2400; // keeps it snappy and matches "quick blur"
+      setTimeout(()=> {
+        intro.classList.add('hide');
+        // then remove from DOM for accessibility after animation completes
+        setTimeout(()=> intro.remove(), 800);
+      }, INTRO_VISIBLE_MS);
+    })();
+
+    // ---------------- MOBILE SIDEBAR TOGGLE ----------------
+    function toggleMobileSidebar(){
+      const mobile = document.getElementById('mobileSidebar');
+      const sidebar = document.getElementById('sidebarDesktop');
+      if(window.getComputedStyle(sidebar).display === 'none'){
+        // create content inside mobileSidebar by cloning sidebar
+        if(!mobile.innerHTML.trim()){
+          mobile.innerHTML = sidebar.innerHTML;
+          mobile.style.display = 'block';
+          mobile.style.padding = '12px';
+          mobile.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.02), transparent)';
+          mobile.style.borderRadius = '12px';
+          mobile.style.border = '1px solid rgba(255,255,255,0.02)';
+        } else {
+          mobile.style.display = mobile.style.display === 'none' ? 'block' : 'none';
+        }
+        // show as overlay
+        mobile.classList.toggle('open');
+      } else {
+        // desktop: nothing
+      }
+    }
+
+    // ---------------- MODAL + CART LOGIC ----------------
+    function openModal(i){
+      currentProductIndex = i;
+      const m = document.getElementById('modal');
+      const t = document.getElementById('modalTitle');
+      const d = document.getElementById('modalDesc');
+      const p = document.getElementById('modalPrice');
+
+      // set text content
+      t.innerText = products[i].title;
+      d.innerText = products[i].desc;
+      p.innerText = products[i].price;
+
+      // clone the SVG from the product card's .media into modalImage (preserve visuals)
+      const card = document.querySelector(`.card[data-index="${i}"]`);
+      const media = card ? card.querySelector('.media') : null;
+      const modalImageWrap = document.getElementById('modalMedia');
+      if(media && modalImageWrap){
+        // clone node (deep) and insert
+        const clone = media.cloneNode(true);
+        // remove margins that might break size and ensure it fits the modal
+        clone.style.width = '100%';
+        clone.style.height = '100%';
+        clone.style.maxHeight = '320px';
+        clone.style.boxSizing = 'border-box';
+        // clear previous and append
+        modalImageWrap.innerHTML = '';
+        modalImageWrap.appendChild(clone);
+      }
+
+      // update Add button to reference current product
+      const addBtn = document.getElementById('modalAddBtn');
+      addBtn.onclick = function(){ addToCart(currentProductIndex) };
+
+      m.classList.add('open');
+      m.setAttribute('aria-hidden', 'false');
+      // small focus trap
+      addBtn.focus();
+    }
+
+    function closeModal(e){
+      // allow close by clicking backdrop OR by calling without event
+      if(e && e.target && e.target.id && e.target.id !== 'modal') return;
+      const m = document.getElementById('modal');
+      m.classList.remove('open');
+      m.setAttribute('aria-hidden', 'true');
+    }
+
+    function addToCart(i){
+      // simple micro-interaction - improved: small badge + animated toast
+      const title = (i>=0 && products[i]) ? products[i].title : 'Item';
+      const el = document.createElement('div');
+      el.style.position='fixed';
+      el.style.right='18px';
+      el.style.bottom='18px';
+      el.style.padding='12px 16px';
+      el.style.background='linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))';
+      el.style.border='1px solid rgba(255,255,255,0.04)';
+      el.style.borderRadius='10px';
+      el.style.backdropFilter='blur(6px)';
+      el.style.color='#fff';
+      el.style.fontWeight='600';
+      el.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)';
+      el.style.transform='translateY(8px)';
+      el.style.transition='opacity .45s ease, transform .45s ease';
+      el.innerText = title + ' added to cart';
+      document.body.appendChild(el);
+      requestAnimationFrame(()=>{ el.style.transform='translateY(0)'; });
+      setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-8px)'; },1400);
+      setTimeout(()=> el.remove(),2200);
+      // close modal if open
+      closeModal();
+    }
+
+    // Accessibility: keyboard close
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); } });
+
+    // Smooth scroll behavior for anchor
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (ev)=>{
+        const href = a.getAttribute('href');
+        if(href.length>1){
+          const el = document.querySelector(href);
+          if(el){ ev.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+        }
+      })
+    });
+
+    // small enhancement: make search input clearable on ESC
+    document.getElementById('search').addEventListener('keydown', (e)=>{
+      if(e.key==='Escape'){ e.target.value=''; e.target.blur(); }
+    });
+
+    // ensure mobile toggles behave correctly on resize
+    window.addEventListener('resize', ()=>{
+      const mobile = document.getElementById('mobileSidebar');
+      if(window.innerWidth > 880 && mobile) mobile.style.display = 'none';
+    });
+
+  </script>
+<script>
+// API endpoint
+const API = "http://localhost:5000";
+
+// preserve your product data, will be merged with API data
+const products = [
+  {title:'Celeste Diamond Ring', price:'₹ 1,45,000', desc:'A classic solitaire with a cut to capture light. 14k white gold band, Conflict-free diamond.'},
+  {title:'Luna Pearl Necklace', price:'₹ 89,500', desc:'South-sea pearl with handcrafted 18k gold chain.'},
+  {title:'Orion Statement Earrings', price:'₹ 54,750', desc:'Bold dangling earrings set with citrine and gold filigree.'},
+  {title:'Serene Band', price:'₹ 24,900', desc:'Elegant rose gold band with a satin finish.'},
+  {title:'Astra Bracelet', price:'₹ 62,300', desc:'Sleek platinum bracelet with diamond accents.'},
+  {title:'Halcyon Brooch', price:'₹ 39,900', desc:'Vintage-inspired brooch with ornate detailing.'}
+];
+
+// Use this object to store fetched products by ID or index,
+// making it easier for openModal to retrieve rich data.
+let productDataMap = {}; 
+
+// ---------------- INTRO LOGIC ----------------
+(function handleIntro(){
+  document.addEventListener('DOMContentLoaded', () => {
+    const intro = document.getElementById('intro');
+    if (!intro) return;
+    const INTRO_VISIBLE_MS = 2400;
+    setTimeout(()=> {
+      intro.classList.add('hide');
+      setTimeout(()=> intro.remove(), 800);
+    }, INTRO_VISIBLE_MS);
+  });
+})();
+
+// ---------------- API LOADING LOGIC ----------------
+
+// Load categories for the filter dropdown
+async function loadCategories() {
+    try {
+        const res = await fetch(`${API}/api/categories`);
+        const data = await res.json();
+        const select = document.getElementById("categoryFilter");
+        // Check for the error element and correct its ID (was error-message, should be error)
+        const errorEl = document.getElementById("error");
+        
+        select.innerHTML = `<option value="">-- All Categories --</option>`;
+        data.categories.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat;
+            opt.textContent = cat[0].toUpperCase() + cat.slice(1);
+            select.appendChild(opt);
+        });
+    } catch {
+        // Updated ID to match HTML
+        const errorEl = document.getElementById("error");
+        if(errorEl) errorEl.textContent = "Failed to load categories.";
+    }
+}
+
+// Load products from API and populate the grid
+async function loadProducts(category = "") {
+    // Corrected grid ID to match the main HTML product container
+    const grid = document.getElementById("products"); 
+    // Corrected error element ID
+    const errorEl = document.getElementById("error");
+
+    if (!grid || !errorEl) return; // Exit if DOM elements aren't ready
+    
+    grid.innerHTML = `<p style="grid-column:1/-1;color:var(--muted);text-align:center">Loading exquisite pieces...</p>`;
+    errorEl.textContent = "";
+    productDataMap = {};
+
+    try {
+        const res = await fetch(`${API}/api/images?category=${category}`);
+        // Check for non-200 status codes
+        if (!res.ok) {
+            throw new Error(`API returned status ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (!data.resources || data.resources.length === 0) {
+            grid.innerHTML = `<p style="grid-column:1/-1;color:var(--muted);text-align:center">No products found for this category.</p>`;
+            return;
+        }
+
+        grid.innerHTML = ""; // Clear loader
+        
+        data.resources.forEach((photo, index) => {
+            // Merge with static data based on index, or use API data
+            const staticProduct = products[index] || {};
+            
+            // Prefer API data for title/description if available, fallback to static
+            const productTitle = photo.name || staticProduct.title || 'Untitled Piece';
+            const productDesc = photo.description || staticProduct.desc || 'Exquisite handcrafted jewelry.';
+            const productPrice = staticProduct.price || 'Price on Request';
+            const productIndex = index;
+
+            // Store rich data for the modal
+            productDataMap[productIndex] = {
+              title: productTitle,
+              desc: productDesc,
+              price: productPrice,
+              // Optimized URL for grid view
+              imageUrl: photo.secure_url.replace("/upload/","/upload/w_300,h_300,c_fill,q_auto:good/")
+            };
+
+            const card = document.createElement("div");
+            card.className = "card";
+            card.setAttribute('data-index', productIndex);
+            
+            card.innerHTML = `
+              <div class="media center" aria-hidden="true">
+                <img src="${productDataMap[productIndex].imageUrl}" alt="${productTitle}" style="width:100%; height:100%; object-fit:cover; border-radius:8px 8px 0 0;" />
+              </div>
+              <h3>${productTitle}</h3>
+              <div class="muted">${productDesc.substring(0, 40)}...</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+                <div style="display:flex;gap:8px">
+                </div>
+              </div>
+            `;
+            grid.appendChild(card);
+        });
+    } catch (e) {
+        console.error("Error loading products:", e);
+        grid.innerHTML = `<p style="grid-column:1/-1;color:red;text-align:center">Error loading products. Check API connection.</p>`;
+        errorEl.textContent = `Error: Could not load products. (${e.message})`;
+    }
+}
+
+// Initial load after DOM content is ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadCategories();
+  loadProducts();
+  const filter = document.getElementById("categoryFilter");
+  if (filter) {
+    filter.onchange = (e) => loadProducts(e.target.value);
+  }
+});
+
+
+// ---------------- MOBILE SIDEBAR TOGGLE ----------------
+function toggleMobileSidebar(){
+  const mobile = document.getElementById('mobileSidebar');
+  const sidebar = document.getElementById('sidebarDesktop');
+  if(window.getComputedStyle(sidebar).display === 'none'){
+    if(!mobile.innerHTML.trim()){
+      // Clone sidebar content into mobile view
+      const clone = sidebar.cloneNode(true);
+      clone.removeAttribute('id'); // Remove desktop ID
+      clone.style.display = 'block';
+      clone.style.padding = '12px';
+      clone.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.02), transparent)';
+      clone.style.borderRadius = '12px';
+      clone.style.border = '1px solid rgba(255,255,255,0.02)';
+      mobile.innerHTML = '';
+      mobile.appendChild(clone);
+      mobile.style.display = 'block';
+    } else {
+      mobile.style.display = mobile.style.display === 'none' ? 'block' : 'none';
+    }
+    mobile.classList.toggle('open');
+  }
+}
+
+// ---------------- MODAL + CART LOGIC ----------------
+function openModal(i){
+  currentProductIndex = i;
+  const data = productDataMap[i];
+  if (!data) {
+      console.warn('Product data not found for index:', i);
+      return;
+  }
+
+  const m = document.getElementById('modal');
+  const t = document.getElementById('modalTitle');
+  const d = document.getElementById('modalDesc');
+  const modalImageWrap = document.getElementById('modalMedia');
+
+  // set text content
+  t.innerText = data.title;
+  d.innerText = data.desc;
+  p.innerText = data.price;
+
+  // Use an image tag for the modal media (fixed logic to use API image URL)
+  modalImageWrap.innerHTML = `<img src="${data.imageUrl.replace("w_300,h_300","w_500,h_500")}" 
+                                alt="${data.title}" 
+                                style="max-height: 320px; max-width: 100%; object-fit: contain; border-radius: 8px;">`;
+
+  // update Add button to reference current product
+  const addBtn = document.getElementById('modalAddBtn');
+  addBtn.onclick = function(){ addToCart(currentProductIndex) };
+
+  m.classList.add('open');
+  m.setAttribute('aria-hidden', 'false');
+  addBtn.focus();
+}
+
+function closeModal(e){
+  // allow close by clicking backdrop OR by calling without event
+  if(e && e.target && e.target.id && e.target.id !== 'modal') return;
+  const m = document.getElementById('modal');
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+function addToCart(i){
+  const title = (productDataMap[i]) ? productDataMap[i].title : 'Item';
+  const el = document.createElement('div');
+  el.style.position='fixed';
+  el.style.right='18px';
+  el.style.bottom='18px';
+  el.style.padding='12px 16px';
+  el.style.background='linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))';
+  el.style.border='1px solid rgba(255,255,255,0.04)';
+  el.style.borderRadius='10px';
+  el.style.backdropFilter='blur(6px)';
+  el.style.color='#fff';
+  el.style.fontWeight='600';
+  el.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)';
+  el.style.transform='translateY(8px)';
+  el.style.transition='opacity .45s ease, transform .45s ease';
+  el.innerText = title + ' added to cart';
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{ el.style.transform='translateY(0)'; });
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-8px)'; },1400);
+  setTimeout(()=> el.remove(),2200);
+  closeModal();
+}
+
+// Accessibility: keyboard close
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); } });
+
+// Smooth scroll behavior for anchor
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', (ev)=>{
+    const href = a.getAttribute('href');
+    if(href.length>1){
+      const el = document.querySelector(href);
+      if(el){ ev.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }
+  })
+});
+
+// small enhancement: make search input clearable on ESC
+// Note: 'search' element ID is not present in HTML, this code is likely vestigial.
+window.addEventListener('load', () => {
+    const searchEl = document.getElementById('search');
+    if (searchEl) {
+        searchEl.addEventListener('keydown', (e)=>{
+          if(e.key==='Escape'){ e.target.value=''; e.target.blur(); }
+        });
+    }
+});
+
+
+// ensure mobile toggles behave correctly on resize
+window.addEventListener('resize', ()=>{
+  const mobile = document.getElementById('mobileSidebar');
+  if(window.innerWidth > 880 && mobile) mobile.style.display = 'none';
+});
+
+</script>
+<script>
+    // Global variable to hold the index of the product currently displayed in the modal
+let currentProductIndex = null; 
+
+// The 'products' and 'productDataMap' objects must be defined elsewhere 
+// (as shown in the previous complete script) for this to work.
+
+// ---------------- MODAL + CART LOGIC ----------------
+
+function openModal(i){
+    currentProductIndex = i;
+    const m = document.getElementById('modal');
+    const t = document.getElementById('modalTitle');
+    const d = document.getElementById('modalDesc');
+    const p = document.getElementById('modalPrice');
+    const modalImageWrap = document.getElementById('modalMedia');
+    const addBtn = document.getElementById('modalAddBtn');
+
+    // 1. Get Product Data (prioritize rich API data if available)
+    // NOTE: This assumes 'productDataMap' and 'products' are globally available.
+    const product = productDataMap[i] || products[i];
+    
+    if (!product) {
+        console.error('Product not found for index:', i);
+        return; 
+    }
+
+    // 2. Set Text Content
+    t.innerText = product.title;
+    d.innerText = product.desc;
+    p.innerText = product.price;
+
+    // 3. Handle Media Display (Use API image URL if available)
+    let imageUrl = product.imageUrl || ''; 
+
+    // Use the secure_url (typically the high-res link from API data) for the modal
+    if (product.secure_url) {
+        // Use a larger size parameter (w_600,h_600) for the modal image
+        imageUrl = product.secure_url.replace('/upload/', '/upload/w_600,h_600,c_fill,g_auto/f_auto/');
+    }
+
+    if (imageUrl) {
+        // Use an <img> tag for the real image
+        modalImageWrap.innerHTML = `
+            <img src="${imageUrl}" 
+                 alt="${product.title}" 
+                 style="width:100%; height:100%; object-fit:contain; max-height:320px;">
+        `;
+    } else {
+        // Fallback for static/missing images
+        modalImageWrap.innerHTML = '<div class="center" style="color:var(--muted)">[Image Placeholder]</div>';
+    }
+
+
+    // 4. Update Add button and Show Modal
+    addBtn.onclick = function(){ addToCart(currentProductIndex) };
+
+    m.classList.add('open');
+    m.setAttribute('aria-hidden', 'false');
+    // Set focus to the close button or add button for accessibility
+    addBtn.focus(); 
+}
+
+function closeModal(e){
+    // Allows closing by clicking the backdrop OR by calling the function directly (like from the close button)
+    if(e && e.target && e.target.id && e.target.id !== 'modal') return;
+    const m = document.getElementById('modal');
+    m.classList.remove('open');
+    m.setAttribute('aria-hidden', 'true');
+}
+
+function addToCart(i){
+    // Simple micro-interaction for confirmation
+    const title = (i>=0 && productDataMap[i]) ? productDataMap[i].title : 'Item';
+    const el = document.createElement('div');
+    el.style.position='fixed';
+    el.style.right='18px';
+    el.style.bottom='18px';
+    el.style.padding='12px 16px';
+    el.style.background='linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))';
+    el.style.border='1px solid rgba(255,255,255,0.04)';
+    el.style.borderRadius='10px';
+    el.style.backdropFilter='blur(6px)';
+    el.style.color='#fff';
+    el.style.fontWeight='600';
+    el.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)';
+    el.style.transform='translateY(8px)';
+    el.style.transition='opacity .45s ease, transform .45s ease';
+    el.innerText = title + ' added to cart';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{ el.style.transform='translateY(0)'; });
+    setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-8px)'; },1400);
+    setTimeout(()=> el.remove(),2200);
+    // close modal after adding to cart
+    closeModal();
+}
+
+// Accessibility: keyboard close (Escape key)
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); } });
+</script>
+  
+</body>
+</html>
