@@ -976,7 +976,9 @@ document.addEventListener("DOMContentLoaded", bindCardListeners);
   </script>
 <script>
 // API endpoint
-const API = "http://localhost:5000";
+const API_URL = "https://njora-backend.onrender.com";
+fetch(`${API_URL}/api/images?category=xyz`)
+
 
 // preserve your product data, will be merged with API data
 const products = [
@@ -1339,3 +1341,4 @@ document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); 
 </body>
 
 </html>
+
