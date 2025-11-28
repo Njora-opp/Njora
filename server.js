@@ -8,13 +8,20 @@ const path = require("path");
 
 const app = express();
 
-// Allow requests from any origin (for GitHub Pages frontend)
-app.use(cors());
+// -----------------------------------
+// CORS — Github Pages frontend allowed
+// -----------------------------------
+app.use(cors({
+    origin: [
+        "https://njora-opp.github.io",
+        "https://njora-opp.github.io/Njora"
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Optional: Serve static files if you also host frontend here
-// app.use(express.static(path.join(__dirname, "public")));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -56,7 +63,7 @@ app.post("/api/create-category", async (req, res) => {
 });
 
 // ---------------------------
-// FILE UPLOAD (Metadata Stored in Cloudinary Context)
+// FILE UPLOAD
 // ---------------------------
 app.post("/api/upload", upload.single("file"), async (req, res) => {
     const file = req.file;
@@ -78,8 +85,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
                     return res.status(500).json({ error: "Upload failed" });
                 }
 
-                // DB SAVE HOOK (optional)
-                console.log(`[DB HOOK] Should save metadata for Public ID: ${result.public_id}`);
+                console.log(`[DB HOOK] Save metadata for ${result.public_id}`);
 
                 return res.json({
                     message: "Uploaded successfully",
@@ -97,7 +103,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 });
 
 // ---------------------------
-// LIST IMAGES BY CATEGORY (WITH METADATA)
+// LIST IMAGES BY CATEGORY
 // ---------------------------
 app.get("/api/images", async (req, res) => {
     const category = req.query.category || "";
@@ -150,8 +156,7 @@ app.post("/api/delete-image", async (req, res) => {
         const result = await cloudinary.uploader.destroy(public_id);
         if (result.result !== "ok") throw new Error("Failed to delete image on Cloudinary");
 
-        // DB DELETE HOOK (optional)
-        console.log(`[DB HOOK] Should delete metadata for Public ID: ${public_id}`);
+        console.log(`[DB HOOK] Delete metadata for ${public_id}`);
 
         res.json({ message: "Deleted successfully" });
     } catch (err) {
@@ -164,16 +169,11 @@ app.post("/api/delete-image", async (req, res) => {
 // ROOT
 // ---------------------------
 app.get("/", (req, res) => {
-    res.send(`
-      Njora backend is running!<br>
-      <a href="/upload.html">Upload Page</a><br>
-      <a href="/view.html">View Page</a><br>
-      <a href="/manage.html">Manage Page</a>
-    `);
+    res.send("Njora backend is running!");
 });
 
 // ---------------------------
-// START SERVER
+// START SERVER (Render uses process.env.PORT)
 // ---------------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
