@@ -4,17 +4,17 @@ const express = require("express");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 
 // -----------------------------------
-// CORS — Github Pages frontend allowed
+// CORS — Allow GitHub Pages frontend
 // -----------------------------------
 app.use(cors({
     origin: [
         "https://njora-opp.github.io",
-        "https://njora-opp.github.io/Njora"
+        "https://njora-opp.github.io/Njora",
+        "https://njora-opp.github.io/Njora/"   // safe fallback
     ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"]
@@ -23,8 +23,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
+// -----------------------------------
+// CLOUDINARY CONFIG
+// -----------------------------------
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,
@@ -140,7 +144,6 @@ app.get("/api/images", async (req, res) => {
         return res.json({ resources: mergedResources, next_cursor: result.next_cursor });
     } catch (err) {
         console.error("Fetch images error:", err);
-        console.error(`Failing folder path: ${folderPath}`);
         return res.status(500).json({ error: "Failed to load images" });
     }
 });
@@ -166,10 +169,10 @@ app.post("/api/delete-image", async (req, res) => {
 });
 
 // ---------------------------
-// ROOT
+// ROOT → REDIRECT TO FRONTEND
 // ---------------------------
 app.get("/", (req, res) => {
-    res.send("Njora backend is running!");
+    res.redirect("https://njora-opp.github.io/Njora/");
 });
 
 // ---------------------------
